@@ -1,5 +1,12 @@
 asgiref==3.9.1
+dj-database-url==3.0.1
+dj-email-url==1.0.6
 Django==5.2.6
+django-cache-url==3.4.5
+environs==14.3.0
+marshmallow==4.0.1
 psycopg2-binary==2.9.10
+python-dotenv==1.1.1
 sqlparse==0.5.3
 tzdata==2025.2
+
