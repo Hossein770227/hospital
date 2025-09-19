@@ -43,7 +43,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # apps
+    "accounts",
+
+    # third party apps
+    "debug_toolbar",
 ]
+
+# django debug toolbar
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = ['127.0.0.1'] + [ip[:-1] + '1' for ip in ips]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
