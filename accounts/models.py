@@ -8,7 +8,6 @@ from datetime import timedelta
 from .managers import MyUserManager
 
 
-
 class MyUser(AbstractBaseUser,PermissionsMixin):
     phone_number =  models.CharField(verbose_name=_('phone number'), max_length=11, unique=True)
     full_name = models.CharField(verbose_name=_('full name'), max_length=100)
@@ -35,8 +34,10 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
     def __str__(self):
         return self.full_name
 
+
 def get_otp_expire_time():
     return timezone.now() + timedelta(minutes=2)
+
 
 class OtpCode(models.Model):
     phone_number = models.CharField(max_length=11)
@@ -46,7 +47,7 @@ class OtpCode(models.Model):
 
     class Meta:
         verbose_name = _('otp code')
-        verbose_plural = _('otp codes') 
+        verbose_name_plural = _('otp codes') 
 
     def __str__(self):
         return f'{self.phone_number}:{self.code}'
