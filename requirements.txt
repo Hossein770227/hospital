@@ -1,5 +1,8 @@
 asgiref==3.10.0
 Django==5.2.8
+jalali_core==1.0.0
+jdatetime==5.2.0
 psycopg2-binary==2.9.11
 sqlparse==0.5.3
 tzdata==2025.2
+
