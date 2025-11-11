@@ -76,14 +76,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DATABASE_NAME', 'hospital'),  
-        'USER': os.environ.get('DATABASE_USER', 'root'),  
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'MYPASSWORD'), 
-        'HOST': os.environ.get('DATABASE_HOST', 'db'),  
-        'PORT': int(os.environ.get('DATABASE_PORT', 5432)),  
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'PORT': os.getenv('DATABASE_PORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

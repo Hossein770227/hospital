@@ -8,10 +8,11 @@ services:
       - .:/code  
     ports:
       - 8000:8000
+
+    env_file:
+      - .env 
+      
     environment:
-      # - "DJANGO_SECRET_KEY=${DOCKER_COMPOSE_DJANGO_SECRET_KEY}"
-      # - "DJANGO_DEBUG=${DOCKER_COMPOSE_DJANGO_DEBUG}"
-      # - "DJANGO_MERCHANT_ID=${DOCKER_COMPOSE_DJANGO_MERCHANT_ID}"
       - "DATABASE_NAME=${DATABASE_NAME}"
       - "DATABASE_USER=${DATABASE_USER}"
       - "DATABASE_PASSWORD=${DATABASE_PASSWORD}"
@@ -23,11 +24,10 @@ services:
   db:
     image: postgres:14
     environment:
-      POSTGRES_USER: root
+      POSTGRES_USER: hossein
       POSTGRES_PASSWORD: MYPASSWORD
       POSTGRES_DB: hospital
-    ports:
-      - 5432:5432
+
     volumes:
       - db_data:/var/lib/postgresql/data
 
