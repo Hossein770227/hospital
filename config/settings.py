@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap4',
     'debug_toolbar',
+    'rosetta',
 ]
 
 MIDDLEWARE = [
@@ -169,3 +170,19 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://your-domain.com",
 ]
+
+# messages config
+MESSAGE_TAGS={
+    constants.ERROR:"danger",
+}
+
+LOCALE_PATHS = [
+os.path.join(BASE_DIR, 'templates/locale'),
+]
+
+# config for rosetta translate
+
+LANGUAGES =(
+    ('en', 'English'),
+    ('fa', 'Persian'),
+)

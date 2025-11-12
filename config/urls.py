@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('hospital/', include('main.urls')),
+    # rosetta translate
+    path('rosetta/', include('rosetta.urls')),
 ]
 
 if settings.DEBUG:

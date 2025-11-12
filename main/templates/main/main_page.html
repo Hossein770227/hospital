@@ -4,9 +4,13 @@
 
 {% block content %}
   {% if user.is_authenticated %}
+    <h1> wellcome {{user.full_name}}
+      <h3>phone number : {{user.phone_number}}</h3>
+    </h1>
     <form method="POST" action="{% url 'accounts:logout' %}">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">Logout</button>
+      <br>
       <a href="{% url 'accounts:change_password' %}" class="btn btn-blue">change_password</a>
     </form>
   {% else %}
