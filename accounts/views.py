@@ -3,6 +3,9 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 from django.views import View
 from .models import MyUser, OtpCode
 from .forms import PhoneLoginForm, UserRegisterForm, VerifyCodeForm
@@ -122,3 +125,20 @@ def logout_view(request):
         return redirect('main:hospital')
 
     return redirect('main:hospital')
+
+
+@login_required
+def password_change_view(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  
+            messages.success(request, _('Your password was changed successfully.'))
+            return redirect('main:hospital')
+        else:
+            messages.error(request, _('Please correct the errors below.'))
+    else:
+        form = PasswordChangeForm(user=request.user)
+
+    return render(request, 'accounts/password_change.html', {'form': form})

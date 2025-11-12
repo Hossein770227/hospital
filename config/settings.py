@@ -162,3 +162,10 @@ if DEBUG:
         INTERNAL_IPS += [ip[: ip.rfind(".")] + ".1" for ip in ips]
     except:
         pass
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://your-domain.com",
+]

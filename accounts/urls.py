@@ -9,4 +9,5 @@ urlpatterns = [
     path('verify/', views.UserRegisterCodeView.as_view(), name='verify_code'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('change_password/', views.password_change_view,name='change_password'),
 ]
