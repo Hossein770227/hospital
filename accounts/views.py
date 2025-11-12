@@ -1,17 +1,21 @@
+import pytz
 import random
 from django.utils import timezone
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import update_session_auth_hash
-from django.views import View
-from .models import MyUser, OtpCode
-from .forms import PhoneLoginForm, UserRegisterForm, VerifyCodeForm
-from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext as _
+from datetime import timedelta
+from django.contrib.auth import get_user_model, update_session_auth_hash
+from django.contrib.auth.hashers import make_password
+from django.urls import reverse
+from django.views import View
 
+from .forms import PhoneLoginForm, UserRegisterForm, VerifyCodeForm
+from .models import OtpCode,MyUser
+from .forms import ForgotPasswordForm, VerifyCodeForm, ResetPasswordForm
 from utils import send_otp_code
 
 
@@ -142,3 +146,112 @@ def password_change_view(request):
         form = PasswordChangeForm(user=request.user)
 
     return render(request, 'accounts/password_change.html', {'form': form})
+
+
+
+
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            phone_number = form.cleaned_data['phone_number']
+            User = get_user_model()
+
+            try:
+                user = User.objects.get(phone_number=phone_number)
+            except User.DoesNotExist:
+                messages.error(request, _("This phone number is not registered in the system."))
+                return render(request, 'accounts/forgot_password.html', {'form': form})
+
+            latest_otp = OtpCode.objects.filter(phone_number=phone_number).order_by('-date_time_created').first()
+            if latest_otp and (timezone.now() - latest_otp.date_time_created).total_seconds() < 120:
+                messages.error(request, _("Please wait a moment before requesting a new OTP."))
+                return render(request, 'accounts/forgot_password.html', {'form': form})
+
+            OtpCode.objects.filter(phone_number=phone_number).delete()
+            random_code = random.randint(1000, 9999)
+            send_otp_code(phone_number, random_code)
+            OtpCode.objects.create(phone_number=phone_number, code=random_code)
+
+            request.session['reset_phone'] = str(phone_number)
+            messages.success(request, _("A verification code has been sent to your phone number."))
+            return redirect(reverse('accounts:verify_code_forgot_password'))
+    else:
+        form = ForgotPasswordForm()
+
+    return render(request, 'accounts/forgot_password.html', {'form': form})
+
+
+def verify_code_forgot_password(request):
+    reset_phone = request.session.get('reset_phone')
+    if not reset_phone:
+        messages.error(request, _("Session expired. Please start over."))
+        return redirect('accounts:forgot_password')
+
+    if request.method == 'POST':
+        form = VerifyCodeForm(request.POST)
+        if form.is_valid():
+            code = form.cleaned_data['code']
+
+            try:
+                code_instance = OtpCode.objects.get(phone_number=reset_phone)
+            except OtpCode.DoesNotExist:
+                messages.error(request, _('No OTP code found for this phone number.'))
+                return redirect('accounts:forgot_password')
+
+            now = timezone.now()
+            expired_time = code_instance.date_time_created + timedelta(minutes=2)
+
+            if now > expired_time:
+                code_instance.delete()
+                messages.error(request, _('The OTP code has expired. Please request a new one.'))
+                return redirect('accounts:forgot_password')
+
+            if str(code) == str(code_instance.code):
+                code_instance.delete() 
+                messages.success(request, _('Code verified successfully.'))
+                return redirect('accounts:reset_password')
+            else:
+                messages.error(request, _('The entered code is incorrect.'))
+                return redirect('accounts:verify_code_forgot_password')
+    else:
+        form = VerifyCodeForm()
+
+    return render(request, 'accounts/verify_code_forgot_password.html', {'form': form})
+
+
+def reset_password(request):
+    reset_phone = request.session.get('reset_phone')
+    if not reset_phone:
+        messages.error(request, _('Please start from the password recovery step.'))
+        return redirect('accounts:forgot_password')
+
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password1']
+            User = get_user_model()
+
+            try:
+                user = User.objects.get(phone_number=reset_phone)
+            except User.DoesNotExist:
+                messages.error(request, _("User not found."))
+                return render(request, 'accounts/reset_password.html', {'form': form})
+
+            user.password = make_password(new_password)
+            user.save()
+
+            request.session.pop('reset_phone', None)
+            request.session.pop('reset_code', None)
+
+            update_session_auth_hash(request, user)
+            messages.success(request, _("Your password has been successfully changed."))
+            return redirect('accounts:login')
+        else:
+            messages.error(request, _("Please correct the errors below."))
+    else:
+        form = ResetPasswordForm()
+
+    return render(request, 'accounts/reset_password.html', {'form': form})
