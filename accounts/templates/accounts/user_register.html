@@ -1,0 +1,11 @@
+{% extends "_base.html" %}
+
+{% block page_title %} user register{% endblock page_title %}
+
+{% block content %}
+    <form method='POST' action=''>
+        {% csrf_token %}
+        {{form}}
+        <button>send</button>
+    </form>
+{% endblock content %}
