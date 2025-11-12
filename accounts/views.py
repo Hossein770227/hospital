@@ -7,6 +7,7 @@ from django.views import View
 from .models import MyUser, OtpCode
 from .forms import UserRegisterForm, VerifyCodeForm
 from utils import send_otp_code
+from django.utils.translation import gettext as _
 
 
 class UserRegisterView(View):
