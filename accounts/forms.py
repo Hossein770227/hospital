@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import gettext_lazy as _
-
+from django.contrib.auth import authenticate
 from .validators import validate_iranian_phone
 from .models import MyUser
 
@@ -91,3 +91,21 @@ class ResetPasswordForm(forms.Form):
             raise forms.ValidationError(_("The passwords must match."))
 
         return cleaned_data
+
+
+class PhoneLoginForm(forms.Form):
+    phone_number = forms.CharField(label=_("Phone number"), max_length=13)
+    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
+
+    def clean(self):
+        phone_number = self.cleaned_data.get("phone_number")
+        password = self.cleaned_data.get("password")
+
+        if phone_number and password:
+            self.user = authenticate(phone_number=phone_number, password=password)
+            if self.user is None:
+                raise forms.ValidationError(_("Invalid phone number or password"))
+        return self.cleaned_data
+
+    def get_user(self):
+        return getattr(self, "user", None)

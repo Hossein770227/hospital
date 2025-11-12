@@ -1,13 +1,15 @@
 import random
 from django.utils import timezone
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import MyUser, OtpCode
-from .forms import UserRegisterForm, VerifyCodeForm
-from utils import send_otp_code
+from .forms import PhoneLoginForm, UserRegisterForm, VerifyCodeForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext as _
+
+from utils import send_otp_code
 
 
 class UserRegisterView(View):
@@ -87,9 +89,28 @@ class UserRegisterCodeView(View):
                 del request.session['user_registration_info']
                 messages.success(request, _('You have successfully registered.'))
                 login(request, user)
-                return redirect('store:product_list')
+                return redirect('main:hospital')
 
             messages.error(request, _('The entered code is incorrect.'))
             return redirect('accounts:verify_code')
 
         return render(request, 'accounts/verify_code.html', {'form': form})
+
+def login_view(request):
+    if request.method == "GET":
+        form = PhoneLoginForm()
+        return render(request, "accounts/login.html", {"form": form})
+
+    form = PhoneLoginForm(request.POST)
+    if not form.is_valid():
+        messages.warning(request, _("Invalid phone number or password."))
+        return render(request, "accounts/login.html", {"form": form})
+
+    user = form.get_user()
+    login(request, user)
+    messages.success(request, _("You have successfully logged in."))
+
+    next_url = request.GET.get("next")
+    if next_url:
+        return redirect(next_url)
+    return redirect("main:hospital")
