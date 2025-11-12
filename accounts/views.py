@@ -1,7 +1,7 @@
 import random
 from django.utils import timezone
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import MyUser, OtpCode
@@ -114,3 +114,11 @@ def login_view(request):
     if next_url:
         return redirect(next_url)
     return redirect("main:hospital")
+
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        messages.error(request, _('You have successfully logged out.'))
+        return redirect('main:hospital')
+
+    return redirect('main:hospital')

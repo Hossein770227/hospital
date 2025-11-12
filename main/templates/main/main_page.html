@@ -1,3 +1,14 @@
 {% extends "_base.html" %}
 
-{% block page_title %} hospital page{% endblock page_title %}
+{% block page_title %}Hospital Page{% endblock page_title %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    <form method="POST" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Logout</button>
+    </form>
+  {% else %}
+    <a href="{% url 'accounts:login' %}" class="btn btn-primary">Login</a>
+  {% endif %}
+{% endblock content %}
