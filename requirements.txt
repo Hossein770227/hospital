@@ -1,9 +1,15 @@
 asgiref==3.10.0
 crispy-bootstrap4==2025.6
+dj-database-url==3.0.1
+dj-email-url==1.0.6
 Django==5.2.8
+django-cache-url==3.4.5
 django-crispy-forms==2.5
+environs==14.5.0
 jalali_core==1.0.0
 jdatetime==5.2.0
+marshmallow==4.1.0
 psycopg2-binary==2.9.11
+python-dotenv==1.2.1
 sqlparse==0.5.3
 tzdata==2025.2
